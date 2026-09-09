@@ -3,6 +3,17 @@
 Uma entrada por aula. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/);
 cada aula tem uma tag `aula-NN` apontando para o commit correspondente.
 
+## [aula-04] O salão vivo: a clientela chega sozinha
+
+### Adicionado
+- Package `ex4/guests/` com o `Protocol FrontOfHouse` declarado **no consumidor**: o `Restaurant` satisfaz o contrato estruturalmente, sem herdar e sem importar nada da clientela.
+- Chegadas de Poisson em duas camadas: gerador síncrono puro para os instantes, async generator para entregar as mesas (consumido com `aclosing`).
+- Quatro perfis de cliente, drink como task paralela ao jantar, e desistência na porta via `asyncio.timeout` com a paciência do perfil.
+- `Random` por mesa derivado de um mestre, para a aula sair igual independente do escalonamento.
+
+### Não mudado
+- O package `restaurant/` — nenhuma linha. Demanda nova não mexe em quem serve, e provar isso É a aula.
+
 ## [aula-03] O restaurante completo (determinístico)
 
 ### Adicionado
