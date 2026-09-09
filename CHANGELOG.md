@@ -3,6 +3,18 @@
 Uma entrada por aula. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/);
 cada aula tem uma tag `aula-NN` apontando para o commit correspondente.
 
+## [aula-05] Medir antes de otimizar: onde está o gargalo
+
+### Adicionado
+- `ex5/`: a mesma noite rodada em seis cenários, mudando uma coisa por vez, com relógio acelerado (`minute_s = 0.01`).
+- Instrumentação do preparador: ocupação e itens por cozinheiro.
+
+### Corrigido
+- **O instrumento.** A aula 4 media a ocupação das estações e não a dos cozinheiros — e com isso o forno (40%) parecia o gargalo, quando o cozinheiro estava em 83%. O erro fica documentado no material: instrumento errado produz conclusão errada com números convincentes.
+
+### Mudado
+- O inventário de cada praça virou parâmetro do `Restaurant`: agora é o objeto do experimento.
+
 ## [aula-04] O salão vivo: a clientela chega sozinha
 
 ### Adicionado
