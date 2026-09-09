@@ -1,0 +1,81 @@
+# ruff.toml — fonte única de linting e formatação deste repositório.
+# Herda a política do workspace VR (projects/feeds/ruff.toml) e endurece o que
+# aqui é greenfield: sem legado pra acomodar, o padrão pode ser mais estrito.
+
+line-length = 100
+target-version = "py313"
+
+[lint]
+# Nomes de regra em selectors exigem preview; explicit-preview-rules evita que
+# `select = ["ALL"]` puxe regras em preview automaticamente.
+preview = true
+explicit-preview-rules = true
+select = ["ALL"]
+ignore = [
+    # Docstrings: exigidas por convenção humana, não por lint. Aqui elas existem
+    # onde ensinam algo — e docstring obrigatória em toda função produziria ruído.
+    "undocumented-public-module", "undocumented-public-class", "undocumented-public-method",
+    "undocumented-public-function", "undocumented-public-package", "undocumented-magic-method",
+    "undocumented-public-nested-class", "undocumented-public-init",
+    "missing-blank-line-after-summary", "non-imperative-mood", "docstring-missing-returns",
+    "docstring-missing-exception", "incorrect-blank-line-before-class",
+    "multi-line-summary-second-line",
+    # Comprimento de linha: quem manda é o formatter (line-length acima).
+    "line-too-long",
+    # Estilo que o formatter já resolve.
+    "missing-trailing-comma", "single-line-implicit-string-concatenation",
+    "bad-quotes-inline-string", "bad-quotes-multiline-string", "bad-quotes-docstring",
+    "avoidable-escaped-quote",
+    # Imports relativos: são eles que fazem cada pasta de aula ser autocontida.
+    "relative-imports",
+    # `print` É a interface deste projeto até a aula de `rich`.
+    "print", "p-print", "debugger",
+    # Simulação usa `random` não-criptográfico de propósito.
+    "suspicious-non-cryptographic-random-usage",
+    # Código comentado: os rodapés de aula mostram o que NÃO fazer, de propósito.
+    "commented-out-code",
+    # flake8-type-checking: mover import para TYPE_CHECKING quebra campos Pydantic
+    # em runtime. Convenção herdada do workspace: não usar.
+    "typing-only-first-party-import", "typing-only-third-party-import",
+    "typing-only-standard-library-import",
+    # Ruído em material didático.
+    "missing-copyright-notice", "raise-vanilla-args", "try-consider-else",
+    # Mensagem de erro: f-string dentro do `raise` é mais legível que a dança de
+    # atribuir numa variável antes. A regra existe para i18n/perf de exceção em
+    # loop quente — não é o caso aqui, e clareza ensina mais.
+    "raw-string-in-exception", "f-string-in-exception", "dot-format-in-exception",
+    # Pontuação e forma de docstring: convenção humana, não trabalho de lint.
+    "multi-line-summary-first-line", "missing-trailing-period",
+    "missing-terminal-punctuation",
+    # `assert` depois de um `wait_for` documenta o invariante que o predicado
+    # já garantiu — é asserção de programador, não validação de entrada.
+    "assert",
+    # `async with A, B` aninhado explícito: cada `with` carrega o próprio
+    # comentário na aula. Colapsar economizaria indentação e perderia a lição.
+    "multiple-with-statements",
+    # Comentários em pt-BR usam travessão e acento; não são "ambíguos".
+    "ambiguous-unicode-character-comment", "ambiguous-unicode-character-string",
+]
+
+[lint.pylint]
+# 8 e não 5: o padrão deste projeto é injeção por argumento nomeado
+# (`*,` seguido de colaboradores com default). São dependências explícitas, não
+# complexidade de assinatura — e explicitá-las é o oposto de um God Object.
+max-args = 8
+
+[lint.per-file-ignores]
+# `__init__.py` é fachada: reexportar é o trabalho dele.
+"__init__.py" = ["unused-import"]
+# O composition root reúne colaboradores por definição: é o único lugar onde
+# "muitos argumentos" É a intenção (cada um é uma dependência explícita, com
+# default). Exceção por arquivo em vez de `max-args` maior globalmente —
+# assim o resto do código continua sendo cobrado.
+"**/restaurant.py" = ["too-many-arguments"]
+# `try/except` dentro de laço é o padrão de retry do preparador — e o overhead
+# é irrelevante ao lado de um `await` de minutos.
+"**/preparer.py" = ["try-except-in-loop"]
+# Testes têm outra ergonomia.
+"tests/**" = [
+    "assert", "magic-value-comparison", "private-member-access",
+    "too-many-arguments", "too-many-positional-arguments", "unused-async",
+]

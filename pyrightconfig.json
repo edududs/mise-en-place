@@ -1,0 +1,17 @@
+{
+  "include": ["ex3", "ex4", "ex5", "src", "tests", "ex1.py", "ex2.py"],
+  "exclude": ["**/__pycache__", "**/.venv", "**/.ruff_cache", "**/.mypy_cache", "**/.pytest_cache"],
+  "typeCheckingMode": "strict",
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Linux",
+  "useLibraryCodeForTypes": true,
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportMissingTypeStubs": "none",
+  "reportUnnecessaryTypeIgnoreComment": "warning",
+  "reportImportCycles": "error",
+  "reportUninitializedInstanceVariable": "error",
+  "reportMatchNotExhaustive": "error",
+  "reportUnusedCoroutine": "error",
+  "reportCallIssue": "error"
+}
