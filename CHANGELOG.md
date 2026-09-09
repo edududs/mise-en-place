@@ -3,6 +3,14 @@
 Uma entrada por aula. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/);
 cada aula tem uma tag `aula-NN` apontando para o commit correspondente.
 
+## [aula-02] A cozinha em POO, e onde o `yield` ganha o lugar dele
+
+### Adicionado
+- `ex2.py`: organograma de responsabilidades (política × mecanismo × ciclo de vida × observabilidade), receita como `Iterator[Step]`, `yield from` para guarnição reaproveitada, `@asynccontextmanager` liberando estação sob cancelamento, e a armadilha "gerador é consumido uma vez só" demonstrada ao vivo.
+
+### Mudado
+- O `usa_fritadeira: bool` + ternário com `nullcontext` saiu: era política vazando para o mecanismo. A estação virou dado do passo, e o recurso passou a ser ocupado por etapa em vez de pelo prato inteiro.
+
 ## [aula-01] Fundamentos: a espera é aproveitável
 
 ### Adicionado
