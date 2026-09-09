@@ -66,9 +66,16 @@ changelog derivado do histórico, tag imutável, CI por tag).
 da hexagonal, por exemplo — vale manter *uma* pasta-snapshot para o diff ficar lado a
 lado no doc. Uma, quando ganhar; não por padrão.
 
-**Migração**: custo zero agora. `git init` + commit do que existe (as 5 aulas em pasta,
-nada se perde) e, da aula 6 em diante, o `ex5/` é promovido ao projeto vivo e as pastas
-`ex3..ex5` ficam recuperáveis pra sempre na tag `aula-05`.
+**Migração — feita.** `git init` + um commit por aula + tag `aula-01..aula-05`, com
+`CHANGELOG.md` e uma página por aula em `docs/aulas/`. Verificado:
+`git worktree add ../aula-03 aula-03` produz uma árvore com apenas `ex1/ex2/ex3` e ela
+roda isolada.
+
+**Primeiro movimento da aula 6** (planejado, não feito): promover `ex5/` ao projeto vivo
+(`src/`) e apagar `ex3..ex5` no mesmo commit — recuperáveis pra sempre nas tags. Enquanto
+as cópias existem, o diff `aula-03..aula-04` acusa 33 arquivos e 2220 linhas quando a
+aula acrescentou **um package**: é a duplicação falando alto, e é o próprio argumento da
+consolidação.
 
 ### Forma do repositório
 
@@ -454,6 +461,12 @@ e (4) — a partir da trilha T7 — teste que prove a invariante que a aula intr
   tag/branch por aula entrega "snapshot completo" sem N cópias no disco, ao custo de
   não dar mais para abrir duas aulas lado a lado no editor. Decisão pendente — e ela
   fica mais caras de reverter a cada aula nova, então vale resolver cedo.
-- `ex2.Cozinha.__aenter__` entra no `TaskGroup` manualmente: exige que entrada e saída
+- **`Restaurant.__init__` tem 9 argumentos** e ganhou exceção de lint por arquivo (em vez
+  de afrouxar `max-args` global). É defensável — o composition root reúne colaboradores
+  por definição — mas é o lint apontando para uma evolução real: quando a configuração
+  do estabelecimento crescer (T9: escala de turno, inventário, upgrades), esses
+  argumentos viram um **modelo de configuração**. E é exatamente ali que o Pydantic
+  entra: config validada, serializável e salvável, em vez de nove parâmetros soltos.
+- `ex2.Kitchen.__aenter__` entra no `TaskGroup` manualmente: exige que entrada e saída
   ocorram na **mesma task** (é o caso no `async with` e no lifespan do FastAPI). Se um
   dia `abrir()`/`fechar()` vierem de tasks diferentes, o padrão é outro (task supervisora).
