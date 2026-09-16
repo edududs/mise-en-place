@@ -82,3 +82,8 @@ Adaptadores em memória e JSONL; testes de ordem e falha explícita no fan-out. 
 
 Caso de uso independente da CLI, fontes de demanda roteirizada e populacional, apresentação extraída. Dezessete testes passando.
 
+
+## Aula 12 — Portas e adaptadores
+
+Contratos explícitos e scaffold de demanda para futura IA; Cities: Skylines II registrado como inspiração, sem alegar implementação. Dezoito testes e pyright passando.
+

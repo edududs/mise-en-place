@@ -18,7 +18,7 @@ import asyncio
 import itertools
 import time
 from collections import defaultdict
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncGenerator, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Final
@@ -115,7 +115,7 @@ class Line:
         self._queue.shutdown()
 
     @asynccontextmanager
-    async def occupy(self, station: Station) -> AsyncIterator[Station]:
+    async def occupy(self, station: Station) -> AsyncGenerator[Station]:
         """Uma vaga da estação, devolvida SEMPRE — inclusive sob cancelamento."""
         slot = self._slots.get(station)
         if slot is None:  # guard clause: cardápio pedindo estação que não existe

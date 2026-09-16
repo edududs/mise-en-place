@@ -9,22 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ...contracts.models import RawOrder
 from ..menu import Course, Recipe, Section
-
-
-@dataclass(frozen=True, slots=True)
-class RawOrder:
-    """O que a mesa FALA. Não confiável: os itens são `str` que alguém digitou.
-
-    É `str` de propósito — o salão não conhece `Receita`. A tradução
-    nome → receita é do validador, e é por isso que "a mesa pediu polenta"
-    tem um erro de verdade pra levantar.
-    """
-
-    table: int
-    course: Course
-    items: tuple[str, ...]
-    size: int = 1
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,3 +51,6 @@ class Ticket:
     @property
     def sections(self) -> frozenset[Section]:
         return frozenset(item.recipe.section for item in self.items)
+
+
+__all__ = ["OrderItem", "RawOrder", "Ticket"]

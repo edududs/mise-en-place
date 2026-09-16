@@ -11,22 +11,11 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Sequence
-from dataclasses import dataclass
 from typing import Final
 
+from ...contracts.models import Table
 from ..core.errors import PartyTooLargeError
 
-
-@dataclass(frozen=True, slots=True)
-class Table:
-    number: int
-    capacity: int
-
-    def __str__(self) -> str:
-        return f"mesa {self.number}"
-
-
-# O layout do salão. Muda quando o restaurante é reformado — e mais nada muda.
 DINING_ROOM: Final[tuple[Table, ...]] = (
     Table(1, capacity=2),
     Table(2, capacity=2),
@@ -82,3 +71,6 @@ class Seating:
     @property
     def occupied(self) -> int:
         return len(DINING_ROOM) - len(self._free_tables)
+
+
+__all__ = ["DINING_ROOM", "Seating", "Table"]
