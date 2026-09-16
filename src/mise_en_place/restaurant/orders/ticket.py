@@ -7,6 +7,7 @@ já é válida — o type checker garante que ninguém pulou o validador.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from ...contracts.models import RawOrder
@@ -43,6 +44,18 @@ class Ticket:
     items: tuple[OrderItem, ...]
     ordered_at: float
     deadline: float
+
+    def __post_init__(self) -> None:
+        if self.table <= 0 or not self.items:
+            raise ValueError("comanda precisa de mesa positiva e itens")
+        if not math.isfinite(self.ordered_at) or not math.isfinite(self.deadline):
+            raise ValueError("instantes da comanda devem ser finitos")
+        if self.ordered_at < 0 or self.deadline < self.ordered_at:
+            raise ValueError("prazo não pode anteceder o pedido")
+        if any(
+            item.table != self.table or item.recipe.course != self.course for item in self.items
+        ):
+            raise ValueError("itens devem pertencer à mesa e ao curso da comanda")
 
     def for_section(self, section: Section) -> tuple[OrderItem, ...]:
         """Os itens desta rodada que pertencem a uma praça."""

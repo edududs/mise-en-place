@@ -19,6 +19,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
+from ..core.values import Duration
 from .courses import Course, Section, Station
 
 
@@ -35,6 +36,11 @@ class Step:
     description: str
     station: Station
     minutes: float
+
+    def __post_init__(self) -> None:
+        Duration(self.minutes)
+        if not self.description.strip():
+            raise ValueError("passo precisa de descrição")
 
 
 # A receita guarda a FÁBRICA de passos, nunca o gerador pronto: gerador é
@@ -62,3 +68,7 @@ class Recipe:
         exatamente a fila — e é essa diferença que o relatório final mostra.
         """
         return sum(step.minutes for step in self.steps())
+
+    def duration(self) -> Duration:
+        """Expõe a unidade no tipo, preservando a API numérica das aulas anteriores."""
+        return Duration(self.expected_minutes())

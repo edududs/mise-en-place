@@ -58,6 +58,8 @@ class Restaurant:
         return self._shift is not None
 
     async def __aenter__(self) -> Self:
+        if self.is_open:
+            raise RuntimeError("o turno já está aberto")
         shift = asyncio.TaskGroup()
         await shift.__aenter__()
         self._shift = shift

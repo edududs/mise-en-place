@@ -87,3 +87,8 @@ Caso de uso independente da CLI, fontes de demanda roteirizada e populacional, a
 
 Contratos explícitos e scaffold de demanda para futura IA; Cities: Skylines II registrado como inspiração, sem alegar implementação. Dezoito testes e pyright passando.
 
+
+## Aula 13 — Invariantes
+
+Duração como valor e proteção da comanda independentemente da entrada. Vinte e três testes e pyright passando.
+
