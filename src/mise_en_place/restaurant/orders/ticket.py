@@ -35,8 +35,8 @@ class Ticket:
     """Rodada VALIDADA de uma mesa: os itens de um curso, com prazo.
 
     `prazo_min` é absoluto e ESTÁTICO (momento do pedido + promessa do curso).
-    É o que torna o EDF starvation-free: um pedido velho só pode virar o de
-    prazo mais próximo, nunca o mais distante.
+    A política EDF usa esse prazo como chave estática. Garantias de espera dependem
+    também das chegadas, dos prazos atribuídos e da capacidade disponível.
     """
 
     table: int

@@ -4,9 +4,8 @@ Cada regra é uma FUNÇÃO injetada, não um método de uma classe gorda: regra 
 entra na tupla `REGRAS` sem tocar no validador (OCP). E o validador não sabe o
 que cada regra checa — ele só sabe *aplicar* regras. Mechanism, not policy.
 
-Aqui também mora o invariante de ORDEM: "principal antes da entrada" é recusa
-de fronteira, não regra de escalonamento. O orquestrador não pode saber disso —
-se soubesse, a cozinha passaria a conhecer política de salão.
+Aqui se verifica a compatibilidade entre item e curso. A sequência temporal entre
+cursos é conduzida pela coroutine da mesa; este validador não mantém esse histórico.
 """
 
 from __future__ import annotations

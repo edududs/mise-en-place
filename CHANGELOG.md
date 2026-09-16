@@ -107,3 +107,8 @@ Porta ResultStore com memória e JSON versionado, gravação por substituição,
 
 RoundServed aciona meta de jogo por dispatcher local; ordem e falha documentadas. Trinta e um testes e pyright passando.
 
+
+## Aula 17 — Provar intercâmbio
+
+CSV, demo finita e 12 combinações de demanda/observação/armazenamento; guardas de dependências; encerramento seguro sob falha e cancelamento; CLI UTF-8 e leitura dos resultados. 57 testes passando, Ruff e dois type checkers limpos. Ajuste de AsyncGenerator no exemplo inicial para compatibilidade com o checker atual; tags históricas intactas. Plano principal atualizado, versão anterior preservada em docs/history e pesquisa Cities: Skylines II registrada.
+

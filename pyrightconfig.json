@@ -1,5 +1,5 @@
 {
-  "include": ["ex3", "ex4", "ex5", "src", "tests", "ex1.py", "ex2.py"],
+  "include": ["src", "tests", "ex1.py", "ex2.py"],
   "exclude": ["**/__pycache__", "**/.venv", "**/.ruff_cache", "**/.mypy_cache", "**/.pytest_cache"],
   "typeCheckingMode": "strict",
   "pythonVersion": "3.13",

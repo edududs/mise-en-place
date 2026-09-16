@@ -4,9 +4,7 @@ version = "0.1.0"
 description = "Curso de engenharia de software em Python pela analogia de uma cozinha — e o simulador/jogo que ele constrói"
 readme = "README.md"
 requires-python = ">=3.13"
-# Sem dependência de runtime até aqui: as aulas 1-5 são stdlib pura, e é parte
-# da lição. `pydantic`, `rich`/`textual` e cia. entram na aula que precisar
-# delas — biblioteca entra quando o problema existe e dói (YAGNI).
+# Aulas 1-5 são stdlib. Pydantic entra na aula 8 para validar arquivos de entrada.
 dependencies = [
     "pydantic>=2.12,<3",
 ]

@@ -28,7 +28,7 @@ def render(measurements: tuple[Measurement, ...]) -> None:
     print("\n--- a leitura ---")
     for m in others:
         gain = baseline.main_wait - m.main_wait
-        ratio = gain / baseline.main_wait
+        ratio = gain / baseline.main_wait if baseline.main_wait else 0.0
         if ratio > SOLVED_THRESHOLD:
             verdict = "RESOLVEU"
         elif ratio > EASED_THRESHOLD:

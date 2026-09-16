@@ -34,22 +34,11 @@ QUEUE_SIZE: Final = 40
 
 @dataclass(frozen=True, slots=True, order=True)
 class Dispatch:
-    """O que entra na fila — e a CHAVE de ordenação são os 4 primeiros campos.
+    """Somente priority ordena; todos os demais campos são payload.
 
-        (prazo_min, curso, indice, sequencia)
-
-    EDF (earliest deadline first): quem prometi entregar primeiro sai primeiro.
-    É starvation-free **por construção**, porque o prazo é absoluto e estático:
-    um pedido velho só pode virar o de prazo mais próximo, nunca o mais distante.
-    Prioridade estrita (VIP sempre na frente) deixaria o pedido comum eternamente
-    parado — medido: `NUNCA SERVIDO`.
-
-    `sequencia` NÃO é enfeite: sem um desempate único, dois despachos com a mesma
-    chave fazem o heap comparar o payload e estourar
-    `TypeError: '<' not supported between instances of 'Despacho'`. Ela também
-    torna o desempate FIFO-estável.
-
-    `compare=False` nos dois últimos campos: eles viajam, não ordenam.
+    EDF usa (prazo, curso, índice, sequência); FIFO usa a sequência de chegada.
+    A chave é calculada uma vez no enqueue. Sequência única desempata sem comparar
+    Futures. Nenhuma política cria capacidade nem garante prazos sob sobrecarga.
     """
 
     priority: PriorityKey

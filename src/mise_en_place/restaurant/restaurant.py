@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from collections.abc import Iterator, Mapping
 from types import TracebackType
 from typing import Self
@@ -55,14 +56,16 @@ class Restaurant:
         self._expediter = Expediter(lines, clock)
         self._validator = Validator(clock)
         self._shift: asyncio.TaskGroup | None = None
+        self._used = False
 
     @property
     def is_open(self) -> bool:
         return self._shift is not None
 
     async def __aenter__(self) -> Self:
-        if self.is_open:
-            raise RuntimeError("o turno já está aberto")
+        if self._used:
+            raise RuntimeError("cada operação representa um único turno; monte outra casa")
+        self._used = True
         shift = asyncio.TaskGroup()
         await shift.__aenter__()
         self._shift = shift
@@ -70,11 +73,19 @@ class Restaurant:
             shift.create_task(preparer.work(), name=preparer.name)
         for waiter in self.wait_staff.waiters:
             shift.create_task(waiter.work(), name=waiter.name)
-        self._record(
-            EventKind.OPENED,
-            "casa",
-            f"{len(self.brigade)} na cozinha/bar, {len(self.wait_staff.waiters)} no salão",
-        )
+        try:
+            self._record(
+                EventKind.OPENED,
+                "casa",
+                f"{len(self.brigade)} na cozinha/bar, {len(self.wait_staff.waiters)} no salão",
+            )
+        except BaseException:
+            # __aexit__ não é chamado automaticamente se __aenter__ falha.
+            self._shift = None
+            self._expediter.close()
+            self.wait_staff.close()
+            await shift.__aexit__(*sys.exc_info())
+            raise
         return self
 
     async def __aexit__(
@@ -88,17 +99,19 @@ class Restaurant:
             return
         self._shift = None
 
-        if exc_type is None:
-            # serviço normal: espera tudo que já entrou sair de verdade
-            await self._expediter.drain()
-            await self.wait_staff.drain()
-
-        # `shutdown()` no lugar de `cancel()`: os workers saem pela porta da
-        # frente (`except asyncio.QueueShutDown`) em vez de serem interrompidos
-        # no meio de um prato. É a evolução direta do padrão do ex1/ex2.
+        try:
+            if exc_type is None:
+                await self._expediter.drain()
+                await self.wait_staff.drain()
+            self._record(EventKind.CLOSED, "casa", "")
+        except BaseException:
+            # Falha de observação ou cancelamento não pode abandonar workers.
+            self._expediter.close()
+            self.wait_staff.close()
+            await shift.__aexit__(*sys.exc_info())
+            raise
         self._expediter.close()
         self.wait_staff.close()
-        self._record(EventKind.CLOSED, "casa", "")
         await shift.__aexit__(exc_type, exc_value, traceback_)
 
     # ─────────────── a porta do salão (o que a clientela usa) ───────────────

@@ -40,7 +40,7 @@ import asyncio
 import itertools
 import random
 import time
-from collections.abc import AsyncIterator, Callable, Iterator, Mapping
+from collections.abc import AsyncGenerator, Callable, Iterator, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -216,7 +216,7 @@ class Stations:
         self._slots = {station: asyncio.Semaphore(count) for station, count in slots.items()}
 
     @asynccontextmanager
-    async def occupy(self, station: Station) -> AsyncIterator[Station]:
+    async def occupy(self, station: Station) -> AsyncGenerator[Station]:
         """Uma vaga da estação, devolvida SEMPRE — inclusive sob cancelamento.
 
         Este é o `yield` mais rentável do arquivo: o que vem ANTES dele é

@@ -1,4 +1,4 @@
-"""Invent?rio inicial: dados compartilhados pela configura??o e montagem."""
+"""Inventário inicial: dados compartilhados pela configuração e montagem."""
 
 from __future__ import annotations
 

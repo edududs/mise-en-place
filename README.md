@@ -1,64 +1,85 @@
 # mise-en-place
 
-> *Mise en place*: na cozinha, é ter tudo preparado e **cada coisa no seu lugar** antes
-> do serviço começar. É também, literalmente, o princípio de arquitetura deste projeto.
+Um curso de engenharia de software em Python que evolui uma cozinha de restaurante
+até um simulador/jogo no terminal. Cada técnica entra quando uma necessidade concreta
+justifica seu custo. Código em inglês; narrativa e comentários em português.
 
-Um curso de engenharia de software em Python construído sobre uma analogia só — uma
-cozinha de restaurante — que vai de `async def` até um simulador/jogo de administração
-de cozinha no terminal. Concorrência, arquitetura hexagonal, DDD, event-driven,
-observabilidade, testes de propriedade e Pydantic entram **quando o simulador precisa
-deles**, não antes.
+O norte está em [CURSO.md](CURSO.md). A [trilha de arquitetura pela necessidade](docs/TRILHA-ARQUITETURA.md)
+continua as cinco aulas iniciais com **12 aulas implementadas, de 6 a 17**.
 
-O documento que manda é [`CURSO.md`](CURSO.md): o norte, as caixas que precisam ficar
-isoladas, as trilhas de assunto e as decisões já tomadas (com o *porquê* de cada uma).
+## Começar
 
-## Rodando
+Python 3.13+ e `uv`:
 
 ```bash
-uv sync                    # ambiente
-python3 ex1.py             # aula 1 — fundamentos
-python3 ex2.py             # aula 2 — POO + geradores
-python3 -m ex3             # aula 3 — o restaurante completo, determinístico
-python3 -m ex4             # aula 4 — o salão vivo (a clientela chega sozinha)
-python3 -m ex5             # aula 5 — medir antes de otimizar
+uv sync --locked
+uv run python -m mise_en_place.demo
+uv run python -m mise_en_place --config examples/scenarios.json
+uv run python -m mise_en_place --config examples/scheduling.json --results-dir results
+uv run python -m mise_en_place --results-dir results --show scenario-1
 ```
 
-## Como o curso é versionado
+A demo finita liga um planejador simples, a cozinha real, uma meta de jogo, eventos CSV
+e armazenamento em memória. O executável principal mantém a clientela da aula 5; sem
+`--config`, compara os seis cenários originais. IDs `scenario-1`, `scenario-2` etc.
+são substituídos em novas execuções no mesmo diretório.
 
-Cada aula é **o todo naquele ponto da evolução**, não um trecho. Uma aula = um commit +
-uma tag + uma entrada no [`CHANGELOG.md`](CHANGELOG.md) + uma página em
-[`docs/aulas/`](docs/aulas).
+Os cenários compartilham sementes, mas tempos e escalonamento podem variar. A saída
+da CLI usa UTF-8, inclusive quando redirecionada no Windows.
+
+## Aulas
+
+| Aula | Leitura |
+|---|---|
+| 01 | [Fundamentos](docs/aulas/001-fundamentos.md) |
+| 02 | [POO e geradores](docs/aulas/002-poo-e-geradores.md) |
+| 03 | [Restaurante completo](docs/aulas/003-restaurante-completo.md) |
+| 04 | [Salão vivo](docs/aulas/004-salao-vivo.md) |
+| 05 | [Medir antes de otimizar](docs/aulas/005-medir-antes-de-otimizar.md) |
+| 06 | [Evoluir com segurança](docs/aulas/006-evoluir-com-seguranca.md) |
+| 07 | [Relatório sem intimidade](docs/aulas/007-relatorio-sem-intimidade.md) |
+| 08 | [Cenários como dados — Pydantic](docs/aulas/008-cenarios-como-dados.md) |
+| 09 | [Montar e operar](docs/aulas/009-montar-e-operar.md) |
+| 10 | [Várias saídas](docs/aulas/010-varias-saidas.md) |
+| 11 | [Executar um turno](docs/aulas/011-executar-um-turno.md) |
+| 12 | [Portas e adaptadores; scaffold de IA](docs/aulas/012-portas-e-adaptadores.md) |
+| 13 | [Invariantes](docs/aulas/013-invariantes.md) |
+| 14 | [Políticas de atendimento](docs/aulas/014-politicas-de-atendimento.md) |
+| 15 | [Guardar resultados](docs/aulas/015-guardar-resultados.md) |
+| 16 | [Fatos e reações](docs/aulas/016-fatos-e-reacoes.md) |
+| 17 | [Provar intercâmbio](docs/aulas/017-provar-intercambio.md) |
+
+## Estudar a evolução
+
+Uma aula é um commit, uma tag e uma página. O snapshot contém o sistema inteiro.
 
 ```bash
-git checkout aula-04                      # o mundo inteiro como estava na aula 4
-git diff aula-03 aula-04                  # A AULA é o diff
-git worktree add ../aula-03 aula-03       # duas aulas lado a lado, sem cópia manual
+git worktree add ../curso-aula-08 aula-08
+git diff aula-07 aula-08 -- src tests
 ```
 
-O princípio: **doc acumula, código evolui.** A narrativa de toda aula fica em `main`
-para sempre; o código daquela aula vive na tag.
+Execute `uv sync --locked` dentro do worktree escolhido. Aulas 3–5 rodam com
+`python -m exN` em suas tags; a partir da 6, com `python -m mise_en_place`.
+Documentação acumula; código evolui em `src/mise_en_place`.
 
-## Convenções
-
-- **Código em inglês; comentários, docstrings e narrativa em pt-BR.** A fronteira é
-  explícita: em `StrEnum` o *identificador* é código (`Station.COLD_LINE`) e o *value*
-  é rótulo (`"bancada fria"`); em `IntEnum` — onde o valor já é a ordem — existe um mapa
-  de rótulos (`COURSE_LABELS`).
-- `from __future__ import annotations`, tipagem em tudo, `X | None`.
-- Zero magic number: constante `Final` nomeada ou `Enum`. (Exceção registrada: dentro de
-  literal de `dataclass` congelada, o nome do campo já nomeia o número.)
-- Guard clauses, SRP, sem God Object, sem primitive obsession.
-- **O código é a aula**: comentário explica o *porquê*, e cada arquivo fecha com um
-  bloco de lições.
-
-## Qualidade
+## Verificar
 
 ```bash
-uvx ruff format . && uvx ruff check .     # select = ["ALL"], ignores por nome de regra
-uvx mypy --strict ex1.py ex2.py
-uvx mypy --strict -p ex3                  # (um alvo por vez)
-uv run pyright                            # typeCheckingMode = "strict"
+uv run ruff format --check .
+uv run ruff check .
+uv run pytest
+uv run pyright
+uv run mypy --strict -p mise_en_place
+uv run mypy --strict ex1.py ex2.py
 ```
 
-Os dois checadores rodam de propósito: quando `mypy` e `pyright` discordam, a
-discordância é matéria.
+Os testes cobrem operação, configuração, políticas, contratos, falhas/cancelamento,
+dependências arquiteturais e combinações de adaptadores. Escala zero verifica
+integração rápida, não simulação determinística de tempo.
+
+## Próximas pesquisas
+
+**Cities: Skylines II** entra como referência para demanda, agentes e custo de simulação.
+Ver [escopo da pesquisa](docs/specs/ia-demanda-simulacao.md). O contexto `ai/` tem
+somente scaffold de planejamento finito; IA reativa, pathfinding, orçamento por tick
+e tempo virtual ainda não estão implementados.

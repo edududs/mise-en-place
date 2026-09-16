@@ -8,6 +8,7 @@ import random
 from pathlib import Path
 from typing import Final
 
+from .adapters.console import configure_output
 from .adapters.demand import PopulationDemand
 from .adapters.report import render
 from .adapters.storage import JsonResultStore
@@ -23,10 +24,6 @@ from .scenarios import Scenario
 
 SERVICE_SEED: Final = 7
 MEASUREMENT_MINUTE_S: Final = 0.01
-# Quanto da espera original precisa cair para o cenário "ter resolvido".
-SOLVED_THRESHOLD: Final = 0.5
-EASED_THRESHOLD: Final = 0.15  # 1 min simulado = 10 ms: a noite em ~3s
-REPORT_WIDTH: Final = 92
 
 
 SCENARIOS: Final[tuple[Scenario, ...]] = (
@@ -44,12 +41,7 @@ SCENARIOS: Final[tuple[Scenario, ...]] = (
 
 
 async def measure(scenario: Scenario) -> Measurement:
-    """Roda a MESMA noite com uma configuração diferente.
-
-    A semente é a mesma em todos os cenários: as chegadas, os perfis e as
-    escolhas são idênticos. Sem isso, a comparação não vale nada — seria
-    ruído de simulação passando por resultado.
-    """
+    """Reutiliza sementes; tempos e entrelaçamento do asyncio ainda podem variar."""
     clock = Clock(minute_s=MEASUREMENT_MINUTE_S)
     master = random.Random(SERVICE_SEED)
     casa = build_restaurant(
@@ -66,6 +58,7 @@ async def measure(scenario: Scenario) -> Measurement:
 
 
 async def main() -> None:
+    configure_output()
     parser = argparse.ArgumentParser(description="Experimentos do restaurante")
     parser.add_argument("--config", type=Path)
     parser.add_argument("--results-dir", type=Path)
@@ -74,12 +67,18 @@ async def main() -> None:
     if args.show:
         if args.results_dir is None:
             parser.error("--show exige --results-dir")
-        saved = JsonResultStore(args.results_dir).load(args.show)
+        try:
+            saved = JsonResultStore(args.results_dir).load(args.show)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
         if saved is None:
             parser.error("resultado não encontrado")
         render((saved,))
         return
-    scenarios = load_scenarios(args.config) if args.config else SCENARIOS
+    try:
+        scenarios = load_scenarios(args.config) if args.config else SCENARIOS
+    except (ValueError, OSError) as error:
+        parser.error(str(error))
     measurements = tuple([await measure(scenario) for scenario in scenarios])
     if args.results_dir is not None:
         store = JsonResultStore(args.results_dir)
