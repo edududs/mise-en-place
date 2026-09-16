@@ -65,6 +65,24 @@ Referências: [Cockburn, portas e adaptadores](https://alistair.cockburn.us/hexa
 
 ## Trabalho depois da trilha
 
+### Referência adicional: Cities: Skylines II
+
+Pedido do autor em 16/09/2026: estudar comportamento dos agentes, dinâmica de demanda
+e custo computacional de Cities: Skylines II. É inspiração de experiência, não uma
+afirmação de como seu código interno funciona. Uma pesquisa posterior deve separar
+documentação oficial, comportamento observado e hipóteses.
+
+A IA será um contexto separado. Nesta trilha preparamos somente a integração:
+uma fonte de demanda substituível, com cenários roteirizados para testes e a clientela
+atual como implementação. A futura IA produz intenções; a operação continua dona da
+validação e da execução. Não pode acessar filas, semáforos ou workers internos.
+
+Pesquisa futura: agentes individuais versus agregados; frequência de decisão e
+orçamento por tick; demanda emergente e retroalimentação; filas, capacidade e trajetos;
+reprodutibilidade e sementes independentes; LOD de simulação; distinguir animação,
+decisão e execução. Avaliar as técnicas conforme evidências e necessidades do curso.
+O scaffold não simula a IA do jogo nem implementa esses algoritmos.
+
 Clock virtual, pausas e replay; economia e agregados com transações; observabilidade
 avançada; interface interativa; plugins; eventos duráveis. Entram quando a evolução
 do jogo trouxer a necessidade, sem comprimir todos esses assuntos nesta trilha.
