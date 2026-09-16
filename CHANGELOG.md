@@ -72,3 +72,8 @@ Pydantic valida o documento inteiro antes da execução; entrada JSON com exempl
 
 Composition root extraído para bootstrap; operação recebe colaboradores. Os 13 testes anteriores continuam passando.
 
+
+## Aula 10 — Várias saídas
+
+Adaptadores em memória e JSONL; testes de ordem e falha explícita no fan-out. Quinze testes passando.
+
