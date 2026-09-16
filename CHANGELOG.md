@@ -67,3 +67,8 @@ Papel explícito dos preparadores e fotografia Measurement; relatório deixa de 
 
 Pydantic valida o documento inteiro antes da execução; entrada JSON com exemplo e testes de capacidades e inventário.
 
+
+## Aula 09 — Montar e operar
+
+Composition root extraído para bootstrap; operação recebe colaboradores. Os 13 testes anteriores continuam passando.
+

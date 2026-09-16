@@ -7,8 +7,8 @@ from typing import Annotated, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .restaurant.layout import KITCHEN_STATIONS, WAITER_NAMES
 from .restaurant.menu import MENU, Section, Station
-from .restaurant.restaurant import KITCHEN_STATIONS, WAITER_NAMES
 from .scenarios import Scenario
 
 type Capacity = Annotated[int, Field(strict=True, gt=0)]

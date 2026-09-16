@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 
+from .restaurant.layout import KITCHEN_STATIONS
 from .restaurant.menu import Station
-from .restaurant.restaurant import KITCHEN_STATIONS
 
 
 @dataclass(frozen=True, slots=True)

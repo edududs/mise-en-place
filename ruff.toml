@@ -71,6 +71,8 @@ max-args = 8
 # default). Exceção por arquivo em vez de `max-args` maior globalmente —
 # assim o resto do código continua sendo cobrado.
 "**/restaurant.py" = ["too-many-arguments"]
+# A montagem extraída na aula 9 reúne as mesmas dependências explícitas.
+"**/bootstrap.py" = ["too-many-arguments"]
 # `try/except` dentro de laço é o padrão de retry do preparador — e o overhead
 # é irrelevante ao lado de um `await` de minutos.
 "**/preparer.py" = ["try-except-in-loop"]

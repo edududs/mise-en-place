@@ -1,25 +1,11 @@
-"""O restaurante: composition root + ciclo de vida.
-
-Este módulo é o ÚNICO que sabe montar o sistema — quem é praça, quem é
-preparador, quem é garçom, quem valida. Nenhum outro módulo compõe nada. É por
-isso que não existe container de injeção de dependência aqui: o `__init__`
-abaixo *é* o container, e cabe numa tela.
-
-Detalhe que vale a aula: esta classe implementa a porta `Atendimento` que o
-package `clientela` declara — **estruturalmente**. Este arquivo nunca importa
-`clientela` e não sabe que a porta existe; a conformidade é conferida pelo type
-checker no ponto em que os dois se encontram (`ex4.py`). Quem define o contrato
-é quem CONSOME (DIP), e o `Protocol` estrutural torna isso possível sem herança
-e sem import — a seta de dependência aponta de fora pra dentro.
-"""
+"""Opera o restaurante com colaboradores montados em bootstrap."""
 
 from __future__ import annotations
 
 import asyncio
-import random
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping
 from types import TracebackType
-from typing import Final, Self
+from typing import Self
 
 from .core.clock import Clock
 from .core.errors import (
@@ -27,40 +13,17 @@ from .core.errors import (
     LeftTheQueueError,
     RestaurantClosedError,
 )
-from .dining import DINING_ROOM, Reason, Seating, Table, WaitStaff
+from .dining import Reason, Seating, Table, WaitStaff
 from .menu import Course, Section, Station
 from .observability import (
-    CompositeJournal,
     Event,
     EventKind,
     Journal,
     Metrics,
-    TerminalJournal,
 )
 from .orders import RawOrder, Validator
 from .results import Measurement, utilization
 from .service import Expediter, Line, Preparer
-
-COOKS_ON_SHIFT: Final = 3
-BARTENDERS_ON_SHIFT: Final = 1
-WAITERS_ON_SHIFT: Final = 3
-WAITER_NAMES: Final[tuple[str, ...]] = ("Ana", "Bia", "Caio", "Dora")
-
-# O inventário físico de cada praça. Estes números são o botão de regência do
-# gargalo: uma chapa e uma fritadeira criam disputa real; tirar um forno e medir
-# de novo é o experimento do ex5.
-KITCHEN_STATIONS: Final[Mapping[Station, int]] = {
-    Station.COLD_LINE: 2,
-    Station.STOVE: 3,
-    Station.GRIDDLE: 1,
-    Station.FRYER: 1,
-    Station.OVEN: 2,
-}
-BAR_STATIONS: Final[Mapping[Station, int]] = {
-    Station.BAR_COUNTER: 2,
-    Station.SHAKER: 1,
-    Station.TAP: 1,
-}
 
 
 class Restaurant:
@@ -70,59 +33,26 @@ class Restaurant:
         self,
         clock: Clock,
         *,
-        rng: random.Random,
-        journal: Journal | None = None,
-        cooks: int = COOKS_ON_SHIFT,
-        bartenders: int = BARTENDERS_ON_SHIFT,
-        waiters: int = WAITERS_ON_SHIFT,
-        seating: Sequence[Table] = DINING_ROOM,
-        kitchen_slots: Mapping[Station, int] = KITCHEN_STATIONS,
-        bar_slots: Mapping[Station, int] = BAR_STATIONS,
+        seating: Seating,
+        wait_staff: WaitStaff,
+        lines: Mapping[Section, Line],
+        brigade: tuple[Preparer, ...],
+        journal: Journal,
+        metrics: Metrics,
+        oven_slots: int,
     ) -> None:
         self.clock = clock
-        self._oven_slots = kitchen_slots.get(Station.OVEN, 0)
-        self.metrics = Metrics()
-        # o terminal e as métricas consomem os MESMOS eventos: uma fonte, dois
-        # destinos. Nada é contado duas vezes, e trocar o destino não toca em
-        # quem emite.
-        self._journal: Journal = CompositeJournal(
-            journal if journal is not None else TerminalJournal(clock),
-            self.metrics,
-        )
-
-        self.seating = Seating(seating)
-        self.wait_staff = WaitStaff(clock, count=waiters, names=WAITER_NAMES)
-        self.lines: Mapping[Section, Line] = {
-            Section.KITCHEN: Line(Section.KITCHEN, clock, slots=kitchen_slots),
-            Section.BAR: Line(Section.BAR, clock, slots=bar_slots),
-        }
-        self._expediter = Expediter(self.lines, clock)
+        self.seating = seating
+        self.wait_staff = wait_staff
+        self.lines = lines
+        self.brigade = brigade
+        self._journal = journal
+        self.metrics = metrics
+        self._oven_slots = oven_slots
+        self._expediter = Expediter(lines, clock)
         self._validator = Validator(clock)
-        self.brigade = (
-            *(
-                Preparer(
-                    f"chef-{number}",
-                    line=self.lines[Section.KITCHEN],
-                    clock=clock,
-                    journal=self._journal,
-                    rng=rng,
-                )
-                for number in range(1, cooks + 1)
-            ),
-            *(
-                Preparer(
-                    f"barman-{number}",
-                    line=self.lines[Section.BAR],
-                    clock=clock,
-                    journal=self._journal,
-                    rng=rng,
-                )
-                for number in range(1, bartenders + 1)
-            ),
-        )
         self._shift: asyncio.TaskGroup | None = None
 
-    # ─────────────────────────── ciclo de vida ───────────────────────────
     @property
     def is_open(self) -> bool:
         return self._shift is not None

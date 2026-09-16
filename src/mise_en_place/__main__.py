@@ -45,11 +45,12 @@ from contextlib import aclosing
 from pathlib import Path
 from typing import Final
 
+from .bootstrap import build_restaurant
 from .configuration import load_scenarios
 from .guests import party_stream
 from .guests.arrivals import MAX_SEED
-from .restaurant import Clock, Restaurant, Station, TerminalJournal
-from .restaurant.restaurant import KITCHEN_STATIONS
+from .restaurant import Clock, Station, TerminalJournal
+from .restaurant.layout import KITCHEN_STATIONS
 from .restaurant.results import Measurement
 from .scenarios import Scenario
 
@@ -84,7 +85,7 @@ async def measure(scenario: Scenario) -> Measurement:
     """
     clock = Clock(minute_s=MEASUREMENT_MINUTE_S)
     master = random.Random(SERVICE_SEED)
-    casa = Restaurant(
+    casa = build_restaurant(
         clock,
         rng=random.Random(master.randrange(MAX_SEED)),
         journal=TerminalJournal(clock, verbose=False),  # medição não narra

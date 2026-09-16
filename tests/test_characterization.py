@@ -7,7 +7,8 @@ import random
 
 import pytest
 
-from mise_en_place.restaurant import Clock, Course, Event, EventKind, RawOrder, Restaurant
+from mise_en_place.bootstrap import build_restaurant
+from mise_en_place.restaurant import Clock, Course, Event, EventKind, RawOrder
 from mise_en_place.restaurant.core.errors import EmptyRoundError, RestaurantClosedError
 from mise_en_place.restaurant.menu import MENU, Section, Station
 from mise_en_place.restaurant.orders import OrderItem, Validator
@@ -24,7 +25,7 @@ class RecordingJournal:
 
 async def test_serves_round_and_closes_workers() -> None:
     journal = RecordingJournal()
-    house = Restaurant(Clock(minute_s=0), rng=random.Random(7), journal=journal)
+    house = build_restaurant(Clock(minute_s=0), rng=random.Random(7), journal=journal)
     async with asyncio.timeout(2):
         async with house:
             await house.order(RawOrder(table=1, course=Course.DRINK, items=("água com gás",)))
@@ -37,7 +38,7 @@ async def test_serves_round_and_closes_workers() -> None:
 
 
 async def test_closed_house_rejects_order() -> None:
-    house = Restaurant(Clock(minute_s=0), rng=random.Random(7))
+    house = build_restaurant(Clock(minute_s=0), rng=random.Random(7))
     with pytest.raises(RestaurantClosedError):
         await house.order(RawOrder(table=1, course=Course.DRINK, items=("chopp",)))
 
