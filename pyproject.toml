@@ -7,7 +7,9 @@ requires-python = ">=3.13"
 # Sem dependência de runtime até aqui: as aulas 1-5 são stdlib pura, e é parte
 # da lição. `pydantic`, `rich`/`textual` e cia. entram na aula que precisar
 # delas — biblioteca entra quando o problema existe e dói (YAGNI).
-dependencies = []
+dependencies = [
+    "pydantic>=2.12,<3",
+]
 
 [dependency-groups]
 dev = [

@@ -1,0 +1,6 @@
+{
+  "scenarios": [
+    {"name": "base", "cooks": 3, "waiters": 3},
+    {"name": "mais cozinheiros", "cooks": 6, "waiters": 3}
+  ]
+}

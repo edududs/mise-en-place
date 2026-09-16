@@ -38,18 +38,20 @@ O QUE ESTA AULA ENSINA:
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import random
-from collections.abc import Mapping
 from contextlib import aclosing
-from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Final
 
+from .configuration import load_scenarios
 from .guests import party_stream
 from .guests.arrivals import MAX_SEED
 from .restaurant import Clock, Restaurant, Station, TerminalJournal
 from .restaurant.restaurant import KITCHEN_STATIONS
 from .restaurant.results import Measurement
+from .scenarios import Scenario
 
 SERVICE_SEED: Final = 7
 MEASUREMENT_MINUTE_S: Final = 0.01
@@ -57,16 +59,6 @@ MEASUREMENT_MINUTE_S: Final = 0.01
 SOLVED_THRESHOLD: Final = 0.5
 EASED_THRESHOLD: Final = 0.15  # 1 min simulado = 10 ms: a noite em ~3s
 REPORT_WIDTH: Final = 92
-
-
-@dataclass(frozen=True, slots=True)
-class Scenario:
-    """Uma configuração do restaurante. Muda UMA coisa por vez, sempre."""
-
-    name: str
-    cooks: int = 3
-    waiters: int = 3
-    kitchen_slots: Mapping[Station, int] = field(default_factory=lambda: KITCHEN_STATIONS)
 
 
 SCENARIOS: Final[tuple[Scenario, ...]] = (
@@ -150,7 +142,11 @@ def render(measurements: tuple[Measurement, ...]) -> None:
 
 
 async def main() -> None:
-    measurements = tuple([await measure(scenario) for scenario in SCENARIOS])
+    parser = argparse.ArgumentParser(description="Experimentos do restaurante")
+    parser.add_argument("--config", type=Path)
+    args = parser.parse_args()
+    scenarios = load_scenarios(args.config) if args.config else SCENARIOS
+    measurements = tuple([await measure(scenario) for scenario in scenarios])
     render(measurements)
 
 

@@ -62,3 +62,8 @@ Migração de ex5 para src/mise_en_place; snapshots anteriores preservados nas t
 
 Papel explícito dos preparadores e fotografia Measurement; relatório deixa de inspecionar workers. Seis testes passando.
 
+
+## Aula 08 — Cenários como dados
+
+Pydantic valida o documento inteiro antes da execução; entrada JSON com exemplo e testes de capacidades e inventário.
+
