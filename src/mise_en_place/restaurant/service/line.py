@@ -27,6 +27,7 @@ from ..core.clock import Clock
 from ..core.errors import UnknownStationError
 from ..menu import Course, Section, Station
 from ..orders import OrderItem
+from .policies import EarliestDeadline, PriorityKey, SchedulingPolicy
 
 QUEUE_SIZE: Final = 40
 
@@ -51,10 +52,11 @@ class Dispatch:
     `compare=False` nos dois últimos campos: eles viajam, não ordenam.
     """
 
-    deadline: float
-    course: Course
-    index: int
-    sequence: int
+    priority: PriorityKey
+    deadline: float = field(compare=False)
+    course: Course = field(compare=False)
+    index: int = field(compare=False)
+    sequence: int = field(compare=False)
     item: OrderItem = field(compare=False)
     ready: asyncio.Future[float] = field(compare=False)
 
@@ -69,8 +71,10 @@ class Line:
         *,
         slots: Mapping[Station, int],
         tamanho_da_fila: int = QUEUE_SIZE,
+        policy: SchedulingPolicy | None = None,
     ) -> None:
         self.section = section
+        self._policy = policy if policy is not None else EarliestDeadline()
         self._clock = clock
         self._queue: asyncio.PriorityQueue[Dispatch] = asyncio.PriorityQueue(
             maxsize=tamanho_da_fila
@@ -86,12 +90,14 @@ class Line:
         aqui em vez de o restaurante aceitar trabalho que não vai dar conta.
         """
         ready: asyncio.Future[float] = asyncio.get_running_loop().create_future()
+        sequence = next(self._sequence)
         await self._queue.put(
             Dispatch(
+                priority=self._policy.key(item, deadline, sequence),
                 deadline=deadline,
                 course=item.recipe.course,
                 index=item.index,
-                sequence=next(self._sequence),
+                sequence=sequence,
                 item=item,
                 ready=ready,
             )

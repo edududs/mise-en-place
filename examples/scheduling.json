@@ -1,0 +1,6 @@
+{
+  "scenarios": [
+    {"name": "prioridade por prazo", "scheduling": "edf"},
+    {"name": "ordem de chegada", "scheduling": "fifo"}
+  ]
+}

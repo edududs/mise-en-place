@@ -57,6 +57,7 @@ async def measure(scenario: Scenario) -> Measurement:
         cooks=scenario.cooks,
         waiters=scenario.waiters,
         kitchen_slots=scenario.kitchen_slots,
+        scheduling=scenario.scheduling,
     )
 
     return await execute(RunShift(scenario.name), casa, PopulationDemand(clock, master))

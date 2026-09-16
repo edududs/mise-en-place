@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .restaurant.layout import KITCHEN_STATIONS, WAITER_NAMES
 from .restaurant.menu import MENU, Section, Station
+from .restaurant.service.policies import SchedulingMode
 from .scenarios import Scenario
 
 type Capacity = Annotated[int, Field(strict=True, gt=0)]
@@ -21,6 +22,7 @@ class ScenarioInput(BaseModel):
     cooks: Capacity = 3
     waiters: Annotated[int, Field(strict=True, gt=0, le=len(WAITER_NAMES))] = 3
     kitchen_slots: dict[Station, Capacity] = Field(default_factory=lambda: dict(KITCHEN_STATIONS))
+    scheduling: SchedulingMode = SchedulingMode.EDF
 
     @model_validator(mode="after")
     def check_inventory(self) -> Self:
@@ -37,7 +39,9 @@ class ScenarioInput(BaseModel):
         return self
 
     def to_scenario(self) -> Scenario:
-        return Scenario(self.name, self.cooks, self.waiters, dict(self.kitchen_slots))
+        return Scenario(
+            self.name, self.cooks, self.waiters, dict(self.kitchen_slots), self.scheduling
+        )
 
 
 class ExperimentInput(BaseModel):

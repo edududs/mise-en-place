@@ -19,6 +19,7 @@ from .restaurant.menu import Section, Station
 from .restaurant.observability import CompositeJournal, Journal, Metrics, TerminalJournal
 from .restaurant.restaurant import Restaurant
 from .restaurant.service import Line, Preparer
+from .restaurant.service.policies import POLICIES, SchedulingMode
 
 
 def build_restaurant(
@@ -32,14 +33,17 @@ def build_restaurant(
     seating: Sequence[Table] = DINING_ROOM,
     kitchen_slots: Mapping[Station, int] = KITCHEN_STATIONS,
     bar_slots: Mapping[Station, int] = BAR_STATIONS,
+    scheduling: SchedulingMode = SchedulingMode.EDF,
 ) -> Restaurant:
     metrics = Metrics()
     observers = CompositeJournal(
         journal if journal is not None else TerminalJournal(clock), metrics
     )
     lines = {
-        Section.KITCHEN: Line(Section.KITCHEN, clock, slots=kitchen_slots),
-        Section.BAR: Line(Section.BAR, clock, slots=bar_slots),
+        Section.KITCHEN: Line(
+            Section.KITCHEN, clock, slots=kitchen_slots, policy=POLICIES[scheduling]
+        ),
+        Section.BAR: Line(Section.BAR, clock, slots=bar_slots, policy=POLICIES[scheduling]),
     }
     brigade = tuple(
         Preparer(f"{label}-{number}", line=lines[section], clock=clock, journal=observers, rng=rng)

@@ -92,3 +92,8 @@ Contratos explícitos e scaffold de demanda para futura IA; Cities: Skylines II 
 
 Duração como valor e proteção da comanda independentemente da entrada. Vinte e três testes e pyright passando.
 
+
+## Aula 14 — Políticas de atendimento
+
+EDF e FIFO selecionáveis por cenário; teste da fila real e desempate estável. Vinte e cinco testes e pyright passando.
+
