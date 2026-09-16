@@ -7,6 +7,7 @@ from collections.abc import Iterator, Mapping
 from types import TracebackType
 from typing import Self
 
+from ..contracts.events import RoundPublisher, RoundServed
 from .core.clock import Clock
 from .core.errors import (
     InvalidOrderError,
@@ -40,6 +41,7 @@ class Restaurant:
         journal: Journal,
         metrics: Metrics,
         oven_slots: int,
+        publisher: RoundPublisher,
     ) -> None:
         self.clock = clock
         self.seating = seating
@@ -49,6 +51,7 @@ class Restaurant:
         self._journal = journal
         self.metrics = metrics
         self._oven_slots = oven_slots
+        self._publisher = publisher
         self._expediter = Expediter(lines, clock)
         self._validator = Validator(clock)
         self._shift: asyncio.TaskGroup | None = None
@@ -142,6 +145,10 @@ class Restaurant:
 
         await self._expediter.serve_round(ticket)
         await self.wait_staff.call(raw.table, Reason.DELIVER)
+
+        self._publisher.publish(
+            RoundServed(ticket.table, ticket.course, len(ticket.items), self.clock.minutes())
+        )
 
         self._journal.record(
             Event(

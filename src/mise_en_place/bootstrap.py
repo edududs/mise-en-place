@@ -5,6 +5,8 @@ from __future__ import annotations
 import random
 from collections.abc import Mapping, Sequence
 
+from .application.events import RoundDispatcher
+from .contracts.events import RoundPublisher
 from .restaurant.core.clock import Clock
 from .restaurant.dining import DINING_ROOM, Seating, Table, WaitStaff
 from .restaurant.layout import (
@@ -34,6 +36,7 @@ def build_restaurant(
     kitchen_slots: Mapping[Station, int] = KITCHEN_STATIONS,
     bar_slots: Mapping[Station, int] = BAR_STATIONS,
     scheduling: SchedulingMode = SchedulingMode.EDF,
+    publisher: RoundPublisher | None = None,
 ) -> Restaurant:
     metrics = Metrics()
     observers = CompositeJournal(
@@ -62,6 +65,7 @@ def build_restaurant(
         journal=observers,
         metrics=metrics,
         oven_slots=kitchen_slots.get(Station.OVEN, 0),
+        publisher=publisher if publisher is not None else RoundDispatcher(),
     )
 
 

@@ -102,3 +102,8 @@ EDF e FIFO selecionáveis por cenário; teste da fila real e desempate estável.
 
 Porta ResultStore com memória e JSON versionado, gravação por substituição, consulta pela CLI e contrato compartilhado. Vinte e nove testes e pyright passando.
 
+
+## Aula 16 — Fatos e reações
+
+RoundServed aciona meta de jogo por dispatcher local; ordem e falha documentadas. Trinta e um testes e pyright passando.
+
