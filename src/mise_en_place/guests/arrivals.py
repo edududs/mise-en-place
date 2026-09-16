@@ -88,4 +88,4 @@ async def party_stream(
         # ARMADILHA: sem `contextlib.aclosing` no consumidor, um `break` no
         # `async for` NÃO roda este `finally` na hora — ele só sai quando o GC
         # lembrar. Se aqui houvesse liberação de recurso, o recurso ficaria preso.
-        print(f"{clock.now()} porta        ◆ fechou para novas chegadas")
+        pass  # A fonte nao escolhe mais o terminal como destino.

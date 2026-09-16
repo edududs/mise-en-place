@@ -77,3 +77,8 @@ Composition root extraído para bootstrap; operação recebe colaboradores. Os 1
 
 Adaptadores em memória e JSONL; testes de ordem e falha explícita no fan-out. Quinze testes passando.
 
+
+## Aula 11 — Executar um turno
+
+Caso de uso independente da CLI, fontes de demanda roteirizada e populacional, apresentação extraída. Dezessete testes passando.
+
