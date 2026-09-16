@@ -57,3 +57,8 @@ cada aula tem uma tag `aula-NN` apontando para o commit correspondente.
 
 Migração de ex5 para src/mise_en_place; snapshots anteriores preservados nas tags; quatro testes de caracterização. Plano atualizado com Cities: Skylines II como referência de pesquisa.
 
+
+## Aula 07 — Relatório sem intimidade
+
+Papel explícito dos preparadores e fotografia Measurement; relatório deixa de inspecionar workers. Seis testes passando.
+

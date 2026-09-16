@@ -40,6 +40,7 @@ class Preparer:
         attempts: int = ATTEMPTS_PER_ITEM,
     ) -> None:
         self.name = name
+        self.section = line.section
         # o cozinheiro FICA com o item do início ao fim, inclusive enquanto
         # espera vaga na estação. É essa a ocupação que importa medir — e era
         # exatamente a que faltava no relatório da aula 4.

@@ -47,8 +47,9 @@ from typing import Final
 
 from .guests import party_stream
 from .guests.arrivals import MAX_SEED
-from .restaurant import Clock, Course, Restaurant, Section, Station, TerminalJournal
+from .restaurant import Clock, Restaurant, Station, TerminalJournal
 from .restaurant.restaurant import KITCHEN_STATIONS
+from .restaurant.results import Measurement
 
 SERVICE_SEED: Final = 7
 MEASUREMENT_MINUTE_S: Final = 0.01
@@ -66,20 +67,6 @@ class Scenario:
     cooks: int = 3
     waiters: int = 3
     kitchen_slots: Mapping[Station, int] = field(default_factory=lambda: KITCHEN_STATIONS)
-
-
-@dataclass(frozen=True, slots=True)
-class Measurement:
-    """O resultado de uma noite. Só números — é isso que se compara."""
-
-    scenario: str
-    minutes: float
-    starter_wait: float
-    main_wait: float
-    oven_utilization: float
-    cook_utilization: float
-    waiter_utilization: float
-    rounds: int
 
 
 SCENARIOS: Final[tuple[Scenario, ...]] = (
@@ -120,27 +107,7 @@ async def measure(scenario: Scenario) -> Measurement:
                 async for party in arrivals:
                     service.create_task(party.dine(casa), name=f"grupo-{party.number}")
 
-    minutes = clock.minutes()
-    oven_minutes = casa.lines[Section.KITCHEN].busy_minutes().get(Station.OVEN, 0.0)
-    oven_slots = scenario.kitchen_slots[Station.OVEN]
-    waiter_minutes = sum(waiter.busy_minutes for waiter in casa.wait_staff.waiters)
-    # só os da cozinha: o barman tem praça própria e nunca foi o problema
-    cooks_only = tuple(p for p in casa.brigade if p.name.startswith("chef"))
-    cook_minutes = sum(preparer.busy_minutes for preparer in cooks_only)
-
-    return Measurement(
-        scenario=scenario.name,
-        minutes=minutes,
-        starter_wait=casa.metrics.average_wait(Course.STARTER),
-        main_wait=casa.metrics.average_wait(Course.MAIN),
-        # ocupação = tempo ocupado / (tempo total × nº de vagas): é a utilização
-        # do RECURSO, não de uma vaga só. Sem dividir pelas vagas, dobrar o
-        # forno "melhoraria" o número sem melhorar nada.
-        oven_utilization=oven_minutes / (minutes * oven_slots),
-        cook_utilization=cook_minutes / (minutes * len(cooks_only)),
-        waiter_utilization=waiter_minutes / (minutes * len(casa.wait_staff.waiters)),
-        rounds=casa.metrics.served,
-    )
+    return casa.measurement(scenario.name)
 
 
 def render(measurements: tuple[Measurement, ...]) -> None:

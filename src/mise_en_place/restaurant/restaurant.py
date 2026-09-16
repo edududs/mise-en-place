@@ -38,6 +38,7 @@ from .observability import (
     TerminalJournal,
 )
 from .orders import RawOrder, Validator
+from .results import Measurement, utilization
 from .service import Expediter, Line, Preparer
 
 COOKS_ON_SHIFT: Final = 3
@@ -79,6 +80,7 @@ class Restaurant:
         bar_slots: Mapping[Station, int] = BAR_STATIONS,
     ) -> None:
         self.clock = clock
+        self._oven_slots = kitchen_slots.get(Station.OVEN, 0)
         self.metrics = Metrics()
         # o terminal e as métricas consomem os MESMOS eventos: uma fonte, dois
         # destinos. Nada é contado duas vezes, e trocar o destino não toca em
@@ -224,6 +226,25 @@ class Restaurant:
         await self.wait_staff.call(table, Reason.BILL)
 
     # ─────────────────────────── prestação de contas ───────────────────────────
+    def measurement(self, scenario: str) -> Measurement:
+        """A operação conhece suas peças; o relatório só conhece este resultado."""
+        minutes = self.clock.minutes()
+        cooks = tuple(p for p in self.brigade if p.section is Section.KITCHEN)
+        oven = self.lines[Section.KITCHEN].busy_minutes().get(Station.OVEN, 0.0)
+        waiters = self.wait_staff.waiters
+        return Measurement(
+            scenario=scenario,
+            minutes=minutes,
+            starter_wait=self.metrics.average_wait(Course.STARTER),
+            main_wait=self.metrics.average_wait(Course.MAIN),
+            oven_utilization=utilization(oven, minutes, self._oven_slots),
+            cook_utilization=utilization(sum(p.busy_minutes for p in cooks), minutes, len(cooks)),
+            waiter_utilization=utilization(
+                sum(w.busy_minutes for w in waiters), minutes, len(waiters)
+            ),
+            rounds=self.metrics.served,
+        )
+
     def report(self) -> Iterator[str]:
         """Gerador de linhas: quem imprime decide o que fazer com elas.
 
