@@ -13,3 +13,6 @@ build/
 
 .test-tmp*/
 
+
+results/
+

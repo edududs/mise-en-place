@@ -97,3 +97,8 @@ Duração como valor e proteção da comanda independentemente da entrada. Vinte
 
 EDF e FIFO selecionáveis por cenário; teste da fila real e desempate estável. Vinte e cinco testes e pyright passando.
 
+
+## Aula 15 — Guardar resultados
+
+Porta ResultStore com memória e JSON versionado, gravação por substituição, consulta pela CLI e contrato compartilhado. Vinte e nove testes e pyright passando.
+

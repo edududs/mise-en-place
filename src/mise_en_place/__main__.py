@@ -10,6 +10,8 @@ from typing import Final
 
 from .adapters.demand import PopulationDemand
 from .adapters.report import render
+from .adapters.storage import JsonResultStore
+from .application.archive import archive
 from .application.run_shift import RunShift, execute
 from .bootstrap import build_restaurant
 from .configuration import load_scenarios
@@ -66,9 +68,23 @@ async def measure(scenario: Scenario) -> Measurement:
 async def main() -> None:
     parser = argparse.ArgumentParser(description="Experimentos do restaurante")
     parser.add_argument("--config", type=Path)
+    parser.add_argument("--results-dir", type=Path)
+    parser.add_argument("--show", type=str, help="identificador de um resultado salvo")
     args = parser.parse_args()
+    if args.show:
+        if args.results_dir is None:
+            parser.error("--show exige --results-dir")
+        saved = JsonResultStore(args.results_dir).load(args.show)
+        if saved is None:
+            parser.error("resultado não encontrado")
+        render((saved,))
+        return
     scenarios = load_scenarios(args.config) if args.config else SCENARIOS
     measurements = tuple([await measure(scenario) for scenario in scenarios])
+    if args.results_dir is not None:
+        store = JsonResultStore(args.results_dir)
+        for index, result in enumerate(measurements, start=1):
+            archive(f"scenario-{index}", result, store)
     render(measurements)
 
 
